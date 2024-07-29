@@ -22,6 +22,7 @@ sport: string
 date: date
 time: time
 num_players: int
+players: array of user objects
 location: {name: string, coords: GeoJSON}
 created_by: string (user.name)
 skill_level: string

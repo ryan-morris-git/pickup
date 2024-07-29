@@ -45,6 +45,7 @@ time?
 num_players?
 location?
 created_by?
+creator_playing?
 skill_level?
 public_private?
 num_open?
