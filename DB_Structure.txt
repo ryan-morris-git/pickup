@@ -1,0 +1,31 @@
+Collection locations
+_id: ObjectID
+location_name: string
+location_coords: GeoJSON
+img?: string
+sports_available: string[]
+usability: [public, private, both]
+cost: [paid, free, both]
+
+Collection users
+_id: ObjectID
+name: string
+email: string
+location: string
+age_range: string
+sports: string[]
+games: array of game objects
+
+Collection games
+_id: ObjectID
+sport: string
+date: date
+time: time
+num_players: int
+location: {name: string, coords: GeoJSON}
+created_by: string (user.name)
+skill_level: string
+public_private: [public, private]
+num_open: int
+cost: int
+byo_equipment: bool
