@@ -3,6 +3,7 @@ from typing import Optional
 from fastapi import FastAPI
 from pydantic import BaseModel
 from pymongo import MongoClient 
+from fastapi.middleware.cors import CORSMiddleware
 
 os.environ["MONGO_USERNAME"] =  "NOPE"
 os.environ["MONGO_PASSWORD"] = "NOPE"
@@ -10,67 +11,65 @@ os.environ["MONGO_PASSWORD"] = "NOPE"
 MONGO_USERNAME = os.environ.get("MONGO_USERNAME")
 MONGO_PASSWORD = os.environ.get("MONGO_PASSWORD")
 
+origins = [
+    "http://localhost",
+    "http://localhost:3000",
+]
+
 MONGO_CONNECTION_STRING = f"mongodb+srv://{MONGO_USERNAME}:{MONGO_PASSWORD}@main.w7srgez.mongodb.net"
 
-class GetGames(BaseModel):
+class GetTraining(BaseModel):
     sport: Optional[str] | None = None
-    open_status: Optional[str] | None = None
-    skill_level: Optional[str] | None = None
-    date: Optional[str] | None = None
-    time: Optional[str] | None = None
-    location: Optional[tuple] | None = None
+    location: Optional[str] | None = None
     public_private: Optional[str] | None = None
-    num_players: Optional[int] | None = None
-    num_open: Optional[int] | None = None
     cost: Optional[int] | None = None
     sort: Optional[str] | None = None
     page_num: Optional[int] | None = 1
     num_result: Optional[int] | None = 10
-    byo_equipment: Optional[bool] | None = None
 
 app = FastAPI()
 
-@app.post("/api/get_games")
-async def get_games(params: GetGames):
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+@app.post("/api/get_training")
+async def get_games(params: GetTraining):
     client = MongoClient(MONGO_CONNECTION_STRING)
 
     db = client.main
-    games = db.games
+    games = db.lessons
 
     query = {}
     if params.sport:
         query["sport"] = params.sport
-    if params.open_status:
-        query["open_status"] = params.open_status
-    if params.skill_level:
-        query["skill_level"] = params.skill_level
     if params.public_private:
         query["public_private"] = params.public_private
-    if params.num_players:
-        query["num_players"] = params.num_players
-    if params.num_open:
-        query["num_open"] = {"$gte": params.num_open}
+    if params.location:
+        query["location"] = params.location
     if params.cost:
         query["cost"] = {"$lte": params.cost}
-    if params.byo_equipment:
-        query["byo_equipment"] = params.skill_level
 
     found_games = list(games.find(query))
     for game in found_games:
         game['_id'] = str(game['_id'])
 
-    return {"games": found_games}
+    return found_games
 
-@app.post("/api/get_user")
-async def get_user():
+@app.post("/api/get_user/{id}")
+async def get_user(id: str):
     return
 
-@app.post("/api/get_game")
-async def get_game():
+@app.post("/api/get_game/{id}")
+async def get_game(id: str):
     return
 
-@app.post("/api/edit_user")
-async def edit_user():
+@app.post("/api/edit_user/{id}")
+async def edit_user(id: str):
     return
 
 @app.post("/api/create_user")
